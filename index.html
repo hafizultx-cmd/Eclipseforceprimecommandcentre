@@ -155,7 +155,7 @@ footer{margin-top:25px;color:#68738e;font-size:10px;display:flex;justify-content
   <h2 id="authHeading">WELCOME BACK.</h2>
   <p id="authDescription">Sign in to access team operations, match records and player performance.</p>
   <form id="authForm">
-   <div class="authfield"><label>EMAIL ADDRESS</label><input id="authEmail" type="email" autocomplete="email" required placeholder="name@example.com"></div>
+   <div class="authfield"><label>USERNAME</label><input id="authEmail" type="text" autocomplete="username" required placeholder="e.g. Spartan" autocapitalize="none"></div>
    <div class="authfield"><label>PASSWORD</label><input id="authPassword" type="password" autocomplete="current-password" minlength="8" required placeholder="At least 8 characters"></div>
    <div class="authfield" id="displayNameField" style="display:none"><label>DISPLAY NAME</label><input id="authDisplayName" type="text" autocomplete="name" placeholder="Your name"></div>
    <div class="authactions"><button class="btn" id="authSubmit" type="submit">SIGN IN</button></div>
@@ -277,7 +277,10 @@ $('#authForm').addEventListener('submit',async e=>{
    msg.textContent='If this email is registered, a password reset link has been sent.';
    msg.className='authmsg ok';
   }else{
-   const {data,error}=await sb.auth.signInWithPassword({email,password});
+   const {data:resolved,error:resolveError}=await sb.rpc('efx_resolve_username',{p_username:email});
+   if(resolveError)throw resolveError;
+   if(!resolved)throw new Error('Username not found. Ask your administrator to create your account.');
+   const {data,error}=await sb.auth.signInWithPassword({email:resolved,password});
    if(error)throw error;
    if(!data.session)throw new Error('Supabase did not return a login session. Please open this website in Safari and try again.');
    msg.textContent='Signed in. Loading team workspace…';msg.className='authmsg ok';
