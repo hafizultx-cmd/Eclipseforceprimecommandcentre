@@ -200,9 +200,9 @@ function updateMatches(){
  $('#scheduleUpcomingCount').textContent=upcoming.length;$('#scheduleScrimCount').textContent=upcoming.filter(m=>m.match_type==='scrim').length;$('#scheduleTourCount').textContent=upcoming.filter(m=>['tournament','league'].includes(m.match_type)).length;
  $('#scheduleList').innerHTML=upcoming.length?upcoming.map(m=>{const dt=new Date(m.scheduled_at);const date=dt.toLocaleDateString('en-MY',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});const time=dt.toLocaleTimeString('en-MY',{hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'Asia/Kuala_Lumpur'});const title=m.event_title?'<small>'+escapeHtml(m.event_title)+'</small>':'';return '<div class="match"><div class="versus"><div class="teammark">'+(m.match_type==='scrim'?'SCR':'TOUR')+'</div><div><strong>'+escapeHtml(m.opponent_name)+'</strong>'+title+'<small>'+date+' · '+time+' MYT · '+escapeHtml(m.match_type.toUpperCase())+' · '+escapeHtml(m.series_format)+'</small>'+(m.notes?'<small>'+escapeHtml(m.notes)+'</small>':'')+'</div></div><span class="pill '+(m.status==='in_progress'?'win':'scheduled')+'">'+m.status.replace('_',' ').toUpperCase()+'</span><button class="btn ghost eventCancel" data-id="'+m.id+'" type="button">CANCEL</button></div>'}).join(''):'<div class="notice">No upcoming fixtures recorded. Add your next scrim or tournament above.</div>';
 }
-let loadDataInFlight=false;
+let loadDataInFlight=false,loadDataPending=false;
 async function loadData(){
- if(loadDataInFlight)return;
+ if(loadDataInFlight){loadDataPending=true;return;}
  loadDataInFlight=true;
  try{
  if(!sb){$('#connectionState').textContent='Supabase client could not initialise.';return}
@@ -216,8 +216,8 @@ async function loadData(){
    matches=[];updateMatches();return;
  }
  const email=session.user.email||'EFX';$('#userAvatar').textContent=email.slice(0,2).toUpperCase();
- const isAdmin=session.user.app_metadata?.role==='admin';currentIsAdmin=isAdmin;$('#addEvent').style.display=isAdmin?'inline-flex':'none';$('#addMatch').style.display=isAdmin?'inline-flex':'none';
  const {data:profile}=await sb.from('efx_profiles').select('role,is_active,display_name').eq('id',session.user.id).maybeSingle();
+ const isAdmin=session.user.app_metadata?.role==='admin'||profile?.role==='admin';currentIsAdmin=isAdmin;$('#addEvent').style.display=isAdmin?'inline-flex':'none';$('#addMatch').style.display=isAdmin?'inline-flex':'none';
  const allowed=isAdmin || profile?.is_active===true;
  if(!allowed){
    $('#authGate').classList.add('show');
@@ -243,7 +243,7 @@ async function loadData(){
  if(fixtures.data)matches=fixtures.data;
  updateMatches();
  }catch(err){console.error('EFX workspace load failed:',err);$('#authGate').classList.add('show');$('#authForm').style.display='block';$('#authMessage').textContent='Signed in, but workspace loading failed: '+(err.message||'Please try again.');$('#authMessage').className='authmsg error';}
- finally{loadDataInFlight=false;}
+ finally{loadDataInFlight=false;if(loadDataPending){loadDataPending=false;queueMicrotask(()=>loadData())}}
 }
 $('#addMatch').addEventListener('click',async()=>{const {data:{session}}=await sb.auth.getSession();if(!session){alert('Please sign in first. Authentication users must be provisioned in Supabase Auth.');go('settings');return}$('#matchModal').classList.add('show')});
 $('#addEvent').addEventListener('click',async()=>{const {data:{session}}=await sb.auth.getSession();if(!session){go('settings');return}const form=$('#eventForm');const dt=new Date(Date.now()+60*60*1000);dt.setMinutes(Math.ceil(dt.getMinutes()/15)*15,0,0);form.elements.date.value=new Date(dt.getTime()-dt.getTimezoneOffset()*60000).toISOString().slice(0,16);$('#eventMessage').textContent='';$('#eventModal').classList.add('show')});
@@ -307,7 +307,7 @@ $('#pendingSignOut').addEventListener('click',async()=>{await sb.auth.signOut();
 async function loadAdminUsers(){const t=$('#adminUsersTable');if(!t)return;const [{data:profiles,error:pErr},{data:usernames,error:uErr}]=await Promise.all([sb.from('efx_profiles').select('id,display_name,role,is_active,created_at').order('created_at',{ascending:false}),sb.from('efx_usernames').select('user_id,username')]);if(pErr||uErr){t.innerHTML='<tr><td colspan="4">'+(pErr?.message||uErr?.message||'Unable to load accounts')+'</td></tr>';return}const byId=new Map((usernames||[]).map(u=>[u.user_id,u.username]));t.innerHTML=(profiles||[]).map(p=>'<tr><td>'+(byId.get(p.id)||'—')+'</td><td>'+p.display_name+'</td><td>'+p.role+'</td><td><span class="pill '+(p.is_active?'win':'scheduled')+'">'+(p.is_active?'ACTIVE':'PENDING')+'</span></td></tr>').join('')||'<tr><td colspan="4">No users</td></tr>';}
 $('#createUserForm')?.addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(e.currentTarget),m=$('#createUserMessage');m.textContent='Creating account…';const {data:{session}}=await sb.auth.getSession();try{const r=await fetch(SUPABASE_URL+'/functions/v1/efx-admin-create-user',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+session.access_token},body:JSON.stringify({username:fd.get('username'),display_name:fd.get('display_name'),password:fd.get('password'),role:fd.get('role')})});const x=await r.json();if(!r.ok)throw new Error(x.error||'Create failed');m.textContent='Created '+x.username+'. Share the initial password securely.';m.className='authmsg ok';e.currentTarget.reset();await loadAdminUsers();}catch(err){m.textContent=err.message;m.className='authmsg error';}});
 
-if(sb){sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT')queueMicrotask(()=>loadData())})}
+if(sb){sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_IN'||event==='SIGNED_OUT')queueMicrotask(()=>loadData())})}
 
 if(window.lucide)lucide.createIcons();updateMatches();loadData();
 </script>
