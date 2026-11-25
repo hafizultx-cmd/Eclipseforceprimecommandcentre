@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090b16"><title>EFX PRIME Command Centre</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap');
+:root{--bg:#090b16;--panel:#111525;--panel2:#151b2e;--line:#252c42;--muted:#8e98b3;--text:#edf1ff;--purple:#8b5cf6;--cyan:#42d9f5;--green:#4de0a2;--red:#ff6b83;--gold:#f5c76a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 78% -15%,#29204d 0,transparent 36%),radial-gradient(ellipse at 0% 55%,#102a3d 0,transparent 28%),var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+button,input,select{font:inherit}button{cursor:pointer}.app{display:grid;grid-template-columns:246px 1fr;min-height:100vh}.sidebar{border-right:1px solid var(--line);background:#0c1020d9;padding:24px 16px;display:flex;flex-direction:column;gap:28px;backdrop-filter:blur(16px)}
+.brand{display:flex;align-items:center;gap:12px;padding:4px 8px}.crest{width:42px;height:42px;border-radius:13px;background:linear-gradient(145deg,#8b5cf6,#31c9ec);display:grid;place-items:center;color:#080b17;font-family:'Barlow Condensed';font-weight:900;font-size:17px;box-shadow:0 8px 28px #7c3aed55}.brand strong{font:800 21px 'Barlow Condensed';letter-spacing:1.2px}.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:2px;margin-top:1px}
+.navlabel{font-size:10px;color:#69738f;letter-spacing:1.8px;font-weight:700;padding:0 12px;margin-bottom:8px}.nav{display:grid;gap:5px}.nav button{border:0;background:transparent;color:#9da7c1;padding:11px 12px;border-radius:10px;text-align:left;display:flex;align-items:center;gap:12px;font-size:13px;font-weight:600}.nav button.active,.nav button:hover{background:linear-gradient(90deg,#8b5cf629,#42d9f511);color:#fff;box-shadow:inset 2px 0 #9b7aff}.nav i{width:17px;height:17px}.sidebottom{margin-top:auto}.season{padding:14px;border:1px solid var(--line);border-radius:13px;background:linear-gradient(145deg,#171d32,#101525)}.season small{color:var(--muted);font-size:10px;letter-spacing:1.4px}.season strong{display:block;margin:6px 0;font-size:13px}.season span{color:var(--cyan);font-size:11px}
+main{padding:28px 34px 48px;max-width:1600px;width:100%;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;gap:18px}.eyebrow{font-size:10px;letter-spacing:2px;color:var(--cyan);font-weight:700}.heading{font:800 34px 'Barlow Condensed';letter-spacing:.5px;margin:4px 0}.sub{font-size:12px;color:var(--muted)}.topright{display:flex;align-items:center;gap:10px}.live{display:flex;align-items:center;gap:8px;border:1px solid #2b765f;background:#12332966;color:#78e8bc;padding:8px 12px;border-radius:99px;font-size:11px}.dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(145deg,#8b5cf6,#32c8ed);display:grid;place-items:center;font-weight:800;font-size:12px}
+.hero{position:relative;overflow:hidden;padding:24px 28px;border:1px solid #4b4272;border-radius:18px;background:linear-gradient(105deg,#1b1b39 0%,#17243a 55%,#102a37 100%);box-shadow:0 20px 60px #0004;margin-bottom:20px}.hero:after{content:'EFX';position:absolute;right:40px;top:-46px;font:900 180px 'Barlow Condensed';color:#ffffff08;letter-spacing:4px}.heroin{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:20px}.herotag{font-size:10px;color:#b8a6ff;letter-spacing:2px;font-weight:700}.hero h2{font:800 31px 'Barlow Condensed';margin:7px 0}.hero p{margin:0;color:#b5bfd6;font-size:12px}.heroStats{display:flex;gap:25px}.heroStat strong{display:block;font:800 25px 'Barlow Condensed'}.heroStat small{color:#9aa7c2;font-size:10px;letter-spacing:1px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}.card{border:1px solid var(--line);background:linear-gradient(145deg,#141a2b,#101525);border-radius:15px;padding:17px;box-shadow:0 8px 30px #0002}.metricHead{display:flex;justify-content:space-between;align-items:center;color:#9ba6c0;font-size:11px}.metricIcon{width:30px;height:30px;border-radius:9px;background:#8b5cf61b;color:#b7a2ff;display:grid;place-items:center}.metricValue{font:800 30px 'Barlow Condensed';margin:11px 0 2px}.metricFoot{font-size:10px;color:var(--muted)}.positive{color:var(--green)}.negative{color:var(--red)}
+.content{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(290px,1fr);gap:16px}.cardtitle{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.cardtitle h3{font:700 18px 'Barlow Condensed';margin:0;letter-spacing:.5px}.cardtitle a{color:var(--cyan);font-size:11px;text-decoration:none;cursor:pointer}.chart{height:190px;display:flex;align-items:end;gap:12px;padding:12px 4px 0;border-bottom:1px solid var(--line);background:repeating-linear-gradient(to bottom,transparent 0,transparent 45px,#252c423f 46px)}.barGroup{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:end;height:100%;gap:8px}.bar{width:min(28px,65%);border-radius:7px 7px 2px 2px;background:linear-gradient(180deg,#53dff4,#7655e9);box-shadow:0 0 18px #6858e333;min-height:5px}.barLabel{font-size:9px;color:#78839f}.legend{display:flex;gap:15px;color:var(--muted);font-size:10px;margin-top:12px}.legend b{display:inline-block;width:7px;height:7px;border-radius:2px;background:var(--cyan);margin-right:6px}
+.matchlist{display:grid;gap:9px}.match{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px;border:1px solid #252c42;border-radius:11px;background:#0e1424}.versus{display:flex;align-items:center;gap:10px;min-width:0}.teammark{width:32px;height:32px;border-radius:10px;background:#8b5cf622;color:#c4b5fd;display:grid;place-items:center;font:800 12px 'Barlow Condensed';flex:none}.match strong{display:block;font-size:12px}.match small{display:block;color:var(--muted);font-size:10px;margin-top:3px}.score{text-align:right;font:800 19px 'Barlow Condensed';white-space:nowrap}.win{color:var(--green)}.loss{color:var(--red)}.upcoming{color:var(--gold);font-size:10px}
+.roster{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}.player{padding:14px;border:1px solid var(--line);border-radius:13px;background:linear-gradient(145deg,#171e31,#101525);position:relative;overflow:hidden}.player:after{content:'';position:absolute;width:70px;height:70px;right:-30px;top:-30px;background:#8b5cf622;border-radius:50%;filter:blur(10px)}.playerTop{display:flex;align-items:center;gap:10px}.playerAvatar{width:37px;height:37px;border-radius:12px;background:linear-gradient(145deg,#46377a,#1c8497);display:grid;place-items:center;font:800 17px 'Barlow Condensed'}.player strong{font-size:12px}.player small{display:block;color:var(--muted);font-size:10px;margin-top:3px}.lane{display:inline-block;margin-top:12px;padding:4px 7px;border-radius:5px;background:#8b5cf61b;color:#bbaaff;font-size:9px;font-weight:700;letter-spacing:1px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:18px 0}.search{background:#101729;border:1px solid var(--line);border-radius:9px;padding:10px 12px;color:var(--text);min-width:220px;font-size:12px}.btn{border:1px solid #4c4380;background:linear-gradient(120deg,#754fe5,#3b9bb6);color:white;padding:10px 14px;border-radius:9px;font-size:11px;font-weight:700}.btn.ghost{background:#151b2d;border-color:var(--line);color:#c5cce0}.page{display:none}.page.active{display:block}.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:12px}.table{width:100%;border-collapse:collapse;min-width:620px}.table th,.table td{text-align:left;padding:13px 15px;border-bottom:1px solid #252c42;font-size:11px}.table th{color:#8590aa;font-size:9px;letter-spacing:1.3px;background:#111827}.table td{color:#d9e0f5}.pill{padding:4px 8px;border-radius:99px;font-size:9px;font-weight:700}.pill.win{background:#153e32;color:#7be9bb}.pill.loss{background:#442331;color:#ff9bae}.pill.scheduled{background:#44391e;color:#f6d184}
+.notice{padding:11px 13px;border-radius:10px;background:#1a2536;border:1px solid #31445a;color:#b9c9e0;font-size:11px;line-height:1.5;margin:12px 0}
+.modalback{position:fixed;inset:0;background:#03050bd9;display:none;place-items:center;padding:20px;z-index:10}.modalback.show{display:grid}.modal{width:min(440px,100%);padding:22px;border-radius:16px;border:1px solid #414866;background:#121a2d;box-shadow:0 30px 100px #000a}.modal h3{font:800 24px 'Barlow Condensed';margin:0 0 14px}.field{display:grid;gap:6px;margin:12px 0}.field label{font-size:10px;color:#9ca8c3}.field input,.field select{background:#0b1221;border:1px solid var(--line);color:white;padding:11px;border-radius:8px;width:100%}.modalActions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+footer{margin-top:25px;color:#68738e;font-size:10px;display:flex;justify-content:space-between}
+@media(max-width:1050px){.grid{grid-template-columns:repeat(2,1fr)}.content{grid-template-columns:1fr}.roster{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.app{grid-template-columns:1fr}.sidebar{position:sticky;top:0;z-index:5;padding:10px 12px;border-right:0;border-bottom:1px solid var(--line);display:block}.brand{padding:0 4px 8px}.crest{width:34px;height:34px}.brand strong{font-size:18px}.navlabel,.sidebottom{display:none}.nav{display:flex;overflow:auto;gap:4px}.nav button{white-space:nowrap;padding:8px 10px;font-size:10px}.nav button i{width:14px}.main{min-width:0}main{padding:20px 14px 34px}.top{align-items:flex-start}.heading{font-size:28px}.topright .live{display:none}.hero{padding:19px}.heroin{display:block}.heroStats{margin-top:20px;gap:25px}.grid{gap:9px}.card{padding:13px}.metricValue{font-size:25px}.roster{grid-template-columns:repeat(2,1fr)}.toolbar{align-items:stretch;flex-direction:column}.search{width:100%}.topright{gap:6px}}
+</style></head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="crest">EFX</div><div><strong>EFX PRIME</strong><small>COMMAND CENTRE</small></div></div>
+  <div><div class="navlabel">COMMAND</div><nav class="nav">
+    <button class="active" data-page="overview"><i data-lucide="layout-dashboard"></i> Overview</button>
+    <button data-page="matches"><i data-lucide="swords"></i> Match Centre</button>
+    <button data-page="players"><i data-lucide="users"></i> Players</button>
+    <button data-page="schedule"><i data-lucide="calendar-days"></i> Schedule</button>
+    <button data-page="analytics"><i data-lucide="chart-no-axes-combined"></i> Analytics</button>
+  </nav></div>
+  <div><div class="navlabel">MANAGEMENT</div><nav class="nav">
+    <button data-page="training"><i data-lucide="target"></i> Training & Attendance</button>
+    <button data-page="reports"><i data-lucide="file-chart-column"></i> Reports</button>
+    <button data-page="settings"><i data-lucide="settings-2"></i> Settings</button>
+  </nav></div>
+  <div class="sidebottom"><div class="season"><small>ACTIVE SQUAD</small><strong>Eclipse Force Prime</strong><span>● Competitive Division</span></div></div>
+</aside>
+<main>
+<header class="top"><div><div class="eyebrow">TEAM OPERATIONS / 2026</div><h1 class="heading" id="pageTitle">Team Overview</h1><div class="sub" id="today"></div></div><div class="topright"><div class="live"><span class="dot"></span> SYSTEM ONLINE</div><div class="avatar">SP</div></div></header>
+<section class="page active" id="overview">
+  <div class="hero"><div class="heroin"><div><div class="herotag">UNDER THE ECLIPSE</div><h2>THE ARENA IS YOURS.</h2><p>Performance, preparation and precision. One team. One standard.</p></div><div class="heroStats"><div class="heroStat"><strong id="heroRecord">0–0</strong><small>MATCH RECORD</small></div><div class="heroStat"><strong id="heroWin">—</strong><small>WIN RATE</small></div><div class="heroStat"><strong>06</strong><small>ACTIVE PLAYERS</small></div></div></div></div>
+  <div class="grid">
+    <div class="card"><div class="metricHead">MATCHES PLAYED <span class="metricIcon"><i data-lucide="swords"></i></span></div><div class="metricValue" id="mPlayed">0</div><div class="metricFoot">Recorded fixtures</div></div>
+    <div class="card"><div class="metricHead">WIN RATE <span class="metricIcon"><i data-lucide="trending-up"></i></span></div><div class="metricValue" id="mRate">—</div><div class="metricFoot positive">Based on completed matches</div></div>
+    <div class="card"><div class="metricHead">UPCOMING FIXTURES <span class="metricIcon"><i data-lucide="calendar-clock"></i></span></div><div class="metricValue" id="mUpcoming">0</div><div class="metricFoot">Scheduled matches</div></div>
+    <div class="card"><div class="metricHead">ACTIVE ROSTER <span class="metricIcon"><i data-lucide="users"></i></span></div><div class="metricValue" id="mPlayers">6</div><div class="metricFoot">Core competitive squad</div></div>
+  </div>
+  <div class="content">
+    <div class="card"><div class="cardtitle"><h3>PERFORMANCE MOMENTUM</h3><a data-goto="analytics">VIEW ANALYTICS ↗</a></div><div class="chart" id="chart"></div><div class="legend"><span><b></b>Match outcomes · demo until results are recorded</span></div></div>
+    <div class="card"><div class="cardtitle"><h3>RECENT MATCHES</h3><a data-goto="matches">ALL MATCHES ↗</a></div><div class="matchlist" id="recentMatches"><div class="notice">No match records yet. Add your first result in Match Centre.</div></div></div>
+  </div>
+  <div class="card" style="margin-top:16px"><div class="cardtitle"><h3>PRIME ROSTER</h3><a data-goto="players">MANAGE PLAYERS ↗</a></div><div class="roster" id="roster"></div></div>
+</section>
+<section class="page" id="matches"><div class="toolbar"><div><h2 class="heading" style="font-size:26px">Match Centre</h2><div class="sub">Scrims, tournaments and official match records</div></div><button class="btn" id="addMatch">＋ RECORD MATCH</button></div><div class="notice" id="authNotice">Sign in to your Supabase account to load and manage live records. This screen currently displays the application preview.</div><div class="card"><div class="cardtitle"><h3>MATCH HISTORY</h3><span class="sub" id="matchCount">0 records</span></div><div class="tablewrap"><table class="table"><thead><tr><th>OPPONENT</th><th>TYPE</th><th>DATE</th><th>SCORE</th><th>RESULT</th></tr></thead><tbody id="matchTable"><tr><td colspan="5" style="color:#8e98b3">No match records available.</td></tr></tbody></table></div></div></section>
+<section class="page" id="players"><div class="toolbar"><div><h2 class="heading" style="font-size:26px">Team & Players</h2><div class="sub">Competitive roster and lane assignments</div></div><button class="btn ghost" id="rosterRefresh">↻ REFRESH</button></div><div class="roster" id="playersRoster"></div></section>
+<section class="page" id="schedule"><div class="toolbar"><div><h2 class="heading" style="font-size:26px">Schedule</h2><div class="sub">Upcoming scrims, tournaments and training sessions</div></div></div><div class="card"><div class="notice">Your upcoming fixtures and training sessions will appear here once entered into the live database.</div><div class="matchlist" id="scheduleList"><div class="notice">No upcoming sessions recorded.</div></div></div></section>
+<section class="page" id="analytics"><div class="toolbar"><div><h2 class="heading" style="font-size:26px">Performance Analytics</h2><div class="sub">Team outcomes and player-level performance</div></div></div><div class="grid"><div class="card"><div class="metricHead">TOTAL WINS</div><div class="metricValue" id="aWins">0</div></div><div class="card"><div class="metricHead">TOTAL LOSSES</div><div class="metricValue" id="aLoss">0</div></div><div class="card"><div class="metricHead">TOTAL DRAWS</div><div class="metricValue" id="aDraw">0</div></div><div class="card"><div class="metricHead">GAMES PLAYED</div><div class="metricValue" id="aGames">0</div></div></div><div class="card"><div class="cardtitle"><h3>RESULT DISTRIBUTION</h3></div><div class="notice">Analytics will calculate automatically from verified match and game records. No performance figures are fabricated.</div></div></section>
+<section class="page" id="training"><div class="toolbar"><div><h2 class="heading" style="font-size:26px">Training & Attendance</h2><div class="sub">Practice consistency and team readiness</div></div></div><div class="card"><div class="notice">Training sessions, daily rank targets and attendance tracking will be activated as records are entered.</div></div></section>
+<section class="page" id="reports"><div class="toolbar"><div><h2 class="heading" style="font-size:26px">Reports & Records</h2><div class="sub">Structured team history and performance summaries</div></div></div><div class="card"><div class="notice">Reports will be generated from saved match, game and attendance data.</div></div></section>
+<section class="page" id="settings"><div class="toolbar"><div><h2 class="heading" style="font-size:26px">System Settings</h2><div class="sub">Application and account configuration</div></div></div><div class="card"><div class="cardtitle"><h3>BACKEND CONNECTION</h3></div><div class="notice" id="connectionState">Checking Supabase connection…</div><div class="sub">Project: mlnbdysnuyoxjnwntorp · Region: Singapore</div><div style="margin-top:16px"><button class="btn ghost" id="signOut">SIGN OUT</button></div></div></section>
+<footer><span>EFX PRIME COMMAND CENTRE · BUILD 0.1</span><span>POWERED BY SUPABASE + VERCEL</span></footer>
+</main></div>
+<div class="modalback" id="matchModal"><div class="modal"><h3>RECORD MATCH RESULT</h3><form id="matchForm"><div class="field"><label>OPPONENT TEAM</label><input name="opponent" required placeholder="Opponent team name"></div><div class="field"><label>MATCH TYPE</label><select name="type"><option value="scrim">Scrim</option><option value="tournament">Tournament</option><option value="league">League</option><option value="friendly">Friendly</option></select></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="field"><label>EFX SCORE</label><input name="efx" type="number" min="0" value="2" required></div><div class="field"><label>OPPONENT SCORE</label><input name="opp" type="number" min="0" value="0" required></div></div><div class="field"><label>DATE & TIME</label><input name="date" type="datetime-local" required></div><div class="modalActions"><button type="button" class="btn ghost" id="cancelMatch">CANCEL</button><button class="btn" type="submit">SAVE RESULT</button></div></form></div></div>
+<script>
+const SUPABASE_URL='https://mlnbdysnuyoxjnwntorp.supabase.co';
+const SUPABASE_KEY='sb_publishable_ldZVBs6MW8B2dPMuvuDoQg_XukBQo8H';
+const sb=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY);
+const roster=[
+ {name:'Spartan',lane:'EXP LANE',desc:'Captain / EXP Lane',initial:'S'},
+ {name:'Guts',lane:'ROAM',desc:'Roam',initial:'G'},
+ {name:'Ola Bella',lane:'MID LANE',desc:'Mid Lane',initial:'O'},
+ {name:'Hayden',lane:'JUNGLE',desc:'Jungle',initial:'H'},
+ {name:'Toyeng',lane:'GOLD LANE',desc:'Gold Lane',initial:'T'},
+ {name:'Juds',lane:'FLEX',desc:'Team Leader / Coach / Fill',initial:'J'}
+];
+let matches=[],teamId=null;
+const $=s=>document.querySelector(s);
+function renderRoster(target){$(target).innerHTML=roster.map(p=>'<div class="player"><div class="playerTop"><div class="playerAvatar">'+p.initial+'</div><div><strong>'+p.name+'</strong><small>'+p.desc+'</small></div></div><span class="lane">'+p.lane+'</span></div>').join('')}
+renderRoster('#roster');renderRoster('#playersRoster');
+const now=new Date();$('#today').textContent=now.toLocaleDateString('en-MY',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const bars=[38,62,48,76,58,86,68];$('#chart').innerHTML=bars.map((v,i)=>'<div class="barGroup"><div class="bar" style="height:'+v+'%"></div><span class="barLabel">W'+(i+1)+'</span></div>').join('');
+document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));
+document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.goto)));
+function go(page){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===page));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));$('#pageTitle').textContent=({overview:'Team Overview',matches:'Match Centre',players:'Team & Players',schedule:'Schedule',analytics:'Performance Analytics',training:'Training & Attendance',reports:'Reports & Records',settings:'System Settings'})[page]||'Overview';}
+function updateMatches(){
+ const completed=matches.filter(m=>m.status==='completed'),wins=completed.filter(m=>m.result==='win').length,loss=completed.filter(m=>m.result==='loss').length,draw=completed.filter(m=>m.result==='draw').length,upcoming=matches.filter(m=>m.status==='scheduled').length;
+ $('#mPlayed').textContent=completed.length;$('#mRate').textContent=completed.length?Math.round(wins/completed.length*100)+'%':'—';$('#mUpcoming').textContent=upcoming;$('#mPlayers').textContent=roster.length;$('#heroRecord').textContent=wins+'–'+loss;$('#heroWin').textContent=completed.length?Math.round(wins/completed.length*100)+'%':'—';$('#aWins').textContent=wins;$('#aLoss').textContent=loss;$('#aDraw').textContent=draw;$('#aGames').textContent=matches.reduce((s,m)=>s+(m.efx_score||0)+(m.opponent_score||0),0);
+ $('#matchCount').textContent=matches.length+' records';
+ const rows=matches.slice().sort((a,b)=>new Date(b.scheduled_at)-new Date(a.scheduled_at));
+ $('#matchTable').innerHTML=rows.length?rows.map(m=>'<tr><td><b>'+m.opponent_name+'</b></td><td>'+m.match_type+'</td><td>'+new Date(m.scheduled_at).toLocaleDateString()+'</td><td>'+m.efx_score+' : '+m.opponent_score+'</td><td><span class="pill '+(m.result==='win'?'win':m.result==='loss'?'loss':'scheduled')+'">'+m.result.toUpperCase()+'</span></td></tr>').join(''):'<tr><td colspan="5" style="color:#8e98b3">No match records available.</td></tr>';
+ $('#recentMatches').innerHTML=rows.slice(0,3).map(m=>'<div class="match"><div class="versus"><div class="teammark">EFX</div><div><strong>EFX PRIME vs '+m.opponent_name+'</strong><small>'+new Date(m.scheduled_at).toLocaleDateString()+' · '+m.match_type+'</small></div></div><div class="score '+(m.result==='win'?'win':m.result==='loss'?'loss':'')+'">'+m.efx_score+' : '+m.opponent_score+'</div></div>').join('')||'<div class="notice">No match records yet. Add your first result in Match Centre.</div>';
+}
+async function loadData(){
+ if(!sb){$('#connectionState').textContent='Supabase client could not initialise.';return}
+ const {data:{session}}=await sb.auth.getSession();
+ $('#connectionState').textContent=session?'Authenticated · Connected to Supabase':'Connected to Supabase · Sign in required to access team records.';
+ $('#authNotice').textContent=session?'Signed in. Match and roster records load from the live database.':'Preview mode. Sign in to Supabase to load live records and save new results.';
+ if(!session)return;
+ const [teams,players,fixtures]=await Promise.all([
+  sb.from('efx_teams').select('*').eq('short_name','EFX PRIME').maybeSingle(),
+  sb.from('efx_players').select('*').eq('is_active',true),
+  sb.from('efx_matches').select('*').order('scheduled_at',{ascending:false})
+ ]);
+ if(teams.data)teamId=teams.data.id;
+ if(players.data?.length){roster.splice(0,roster.length,...players.data.map(p=>({name:p.in_game_name,lane:p.lane.toUpperCase()+' LANE',desc:p.role_description||p.lane,initial:p.in_game_name[0]})));renderRoster('#roster');renderRoster('#playersRoster')}
+ if(fixtures.data)matches=fixtures.data;
+ updateMatches();
+}
+$('#addMatch').addEventListener('click',async()=>{const {data:{session}}=await sb.auth.getSession();if(!session){alert('Please sign in first. Authentication users must be provisioned in Supabase Auth.');go('settings');return}$('#matchModal').classList.add('show')});
+$('#cancelMatch').addEventListener('click',()=>$('#matchModal').classList.remove('show'));
+$('#matchForm').addEventListener('submit',async e=>{e.preventDefault();const f=new FormData(e.target),efx=Number(f.get('efx')),opp=Number(f.get('opp'));if(!teamId){alert('Team record not loaded. Refresh after signing in.');return}
+ const {error}=await sb.from('efx_matches').insert({team_id:teamId,opponent_name:f.get('opponent'),match_type:f.get('type'),series_format:'BO3',scheduled_at:new Date(f.get('date')).toISOString(),status:'completed',efx_score:efx,opponent_score:opp});
+ if(error){alert('Could not save match: '+error.message);return}$('#matchModal').classList.remove('show');e.target.reset();await loadData();go('matches');
+});
+$('#rosterRefresh').addEventListener('click',loadData);
+$('#signOut').addEventListener('click',async()=>{await sb.auth.signOut();location.reload()});
+if(sb){sb.auth.onAuthStateChange(()=>loadData())}
+if(window.lucide)lucide.createIcons();updateMatches();loadData();
+</script>
+</body></html>
