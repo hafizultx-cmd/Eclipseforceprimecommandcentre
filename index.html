@@ -24,6 +24,77 @@ main{padding:28px 34px 48px;max-width:1600px;width:100%;margin:auto}.top{display
 footer{margin-top:25px;color:#68738e;font-size:10px;display:flex;justify-content:space-between}
 @media(max-width:1050px){.grid{grid-template-columns:repeat(2,1fr)}.content{grid-template-columns:1fr}.roster{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){.app{grid-template-columns:1fr}.sidebar{position:sticky;top:0;z-index:5;padding:10px 12px;border-right:0;border-bottom:1px solid var(--line);display:block}.brand{padding:0 4px 8px}.crest{width:34px;height:34px}.brand strong{font-size:18px}.navlabel,.sidebottom{display:none}.nav{display:flex;overflow:auto;gap:4px}.nav button{white-space:nowrap;padding:8px 10px;font-size:10px}.nav button i{width:14px}.main{min-width:0}main{padding:20px 14px 34px}.top{align-items:flex-start}.heading{font-size:28px}.topright .live{display:none}.hero{padding:19px}.heroin{display:block}.heroStats{margin-top:20px;gap:25px}.grid{gap:9px}.card{padding:13px}.metricValue{font-size:25px}.roster{grid-template-columns:repeat(2,1fr)}.toolbar{align-items:stretch;flex-direction:column}.search{width:100%}.topright{gap:6px}}
+
+/* Hybrid desktop / mobile refinements */
+@media (min-width:701px) {
+  .sidebar{position:sticky;top:0;height:100vh;min-height:100vh}
+  .nav button{transition:background .2s ease,transform .2s ease,color .2s ease}
+  .nav button:hover{transform:translateX(3px)}
+  .card{transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+  .card:hover{transform:translateY(-2px);border-color:#3a4564;box-shadow:0 14px 38px #0004}
+  .hero{min-height:170px}
+}
+@media (max-width:700px) {
+  body{padding-bottom:88px}
+  .app{display:block;min-height:100vh}
+  .sidebar{position:fixed;z-index:30;left:10px;right:10px;bottom:10px;top:auto;height:auto;min-height:0;padding:7px 8px;border:1px solid #343d59;border-radius:17px;background:#101629ed;box-shadow:0 12px 44px #0009;backdrop-filter:blur(22px)}
+  .brand,.navlabel,.sidebottom{display:none!important}
+  .sidebar>div:nth-child(2),.sidebar>div:nth-child(3){display:contents}
+  .nav{display:flex;align-items:stretch;justify-content:flex-start;gap:4px;overflow-x:auto;scrollbar-width:none}
+  .nav::-webkit-scrollbar{display:none}
+  .nav button{flex:0 0 auto;min-width:65px;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:7px 9px;border-radius:10px;text-align:center;font-size:9px;line-height:1.1;white-space:nowrap}
+  .nav button i{width:17px;height:17px}
+  .nav button.active{background:linear-gradient(180deg,#8b5cf633,#42d9f51a);box-shadow:inset 0 2px #9b7aff}
+  main{padding:18px 13px 22px;max-width:none}
+  .top{margin-bottom:18px;align-items:center}
+  .heading{font-size:27px}
+  .eyebrow{font-size:9px}
+  .sub{font-size:11px}
+  .topright .live{display:none}
+  .avatar{width:33px;height:33px}
+  .hero{padding:18px 17px;border-radius:15px;margin-bottom:13px}
+  .hero:after{font-size:112px;right:10px;top:-20px}
+  .heroin{display:block}
+  .hero h2{font-size:27px}
+  .hero p{max-width:245px;line-height:1.5}
+  .heroStats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:19px;padding-top:13px;border-top:1px solid #ffffff18}
+  .heroStat strong{font-size:23px}
+  .heroStat small{font-size:8px;letter-spacing:.7px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:12px}
+  .card{padding:13px;border-radius:13px}
+  .metricHead{font-size:9px;gap:5px}
+  .metricIcon{width:26px;height:26px}
+  .metricValue{font-size:26px;margin:8px 0 1px}
+  .metricFoot{font-size:9px}
+  .content{grid-template-columns:minmax(0,1fr);gap:11px}
+  .cardtitle{margin-bottom:12px}
+  .cardtitle h3{font-size:16px}
+  .chart{height:145px;gap:7px}
+  .roster{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+  .player{padding:11px;border-radius:11px}
+  .playerTop{gap:8px}
+  .playerAvatar{width:32px;height:32px;border-radius:10px}
+  .player strong{font-size:11px}
+  .player small{font-size:9px}
+  .lane{font-size:8px;margin-top:9px}
+  .toolbar{flex-direction:column;align-items:stretch;margin:12px 0}
+  .toolbar .btn{width:100%}
+  .tablewrap{margin:0 -2px}
+  .table{min-width:570px}
+  .table th,.table td{padding:11px 12px}
+  .match{padding:9px}
+  .match strong{font-size:11px}
+  .match small{font-size:9px}
+  footer{font-size:8px;gap:8px;flex-wrap:wrap}
+}
+@media (max-width:380px) {
+  main{padding-left:10px;padding-right:10px}
+  .nav button{min-width:58px;padding:7px 6px;font-size:8px}
+  .metricValue{font-size:23px}
+  .hero h2{font-size:24px}
+  .player{padding:9px}
+}
+
 </style></head>
 <body>
 <div class="app">
@@ -86,7 +157,7 @@ const $=s=>document.querySelector(s);
 function renderRoster(target){$(target).innerHTML=roster.map(p=>'<div class="player"><div class="playerTop"><div class="playerAvatar">'+p.initial+'</div><div><strong>'+p.name+'</strong><small>'+p.desc+'</small></div></div><span class="lane">'+p.lane+'</span></div>').join('')}
 renderRoster('#roster');renderRoster('#playersRoster');
 const now=new Date();$('#today').textContent=now.toLocaleDateString('en-MY',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-const bars=[38,62,48,76,58,86,68];$('#chart').innerHTML=bars.map((v,i)=>'<div class="barGroup"><div class="bar" style="height:'+v+'%"></div><span class="barLabel">W'+(i+1)+'</span></div>').join('');
+$('#chart').innerHTML='<div class="notice" style="width:100%;align-self:center">Live performance chart will populate from recorded match results.</div>';
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));
 document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.goto)));
 function go(page){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===page));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));$('#pageTitle').textContent=({overview:'Team Overview',matches:'Match Centre',players:'Team & Players',schedule:'Schedule',analytics:'Performance Analytics',training:'Training & Attendance',reports:'Reports & Records',settings:'System Settings'})[page]||'Overview';}
