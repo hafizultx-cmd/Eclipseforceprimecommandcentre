@@ -95,6 +95,15 @@ footer{margin-top:25px;color:#68738e;font-size:10px;display:flex;justify-content
   .player{padding:9px}
 }
 
+
+.authgate{position:fixed;inset:0;z-index:80;display:none;place-items:center;padding:20px;background:radial-gradient(ellipse at 70% 10%,#32215d99,transparent 38%),#080b16f5;backdrop-filter:blur(18px)}
+.authgate.show{display:grid}.authbox{width:min(440px,100%);border:1px solid #444269;border-radius:20px;padding:28px;background:linear-gradient(145deg,#171d32,#0e1424);box-shadow:0 30px 100px #000b}
+.authbrand{display:flex;align-items:center;gap:12px;margin-bottom:24px}.authbrand .crest{width:48px;height:48px}.authbrand strong{font:800 23px 'Barlow Condensed';letter-spacing:1px}.authbrand small{display:block;color:#929db8;font-size:10px;letter-spacing:2px}
+.authbox h2{font:800 28px 'Barlow Condensed';margin:0 0 6px}.authbox p{color:#9da8c2;font-size:12px;line-height:1.55;margin:0 0 18px}
+.authfield{display:grid;gap:7px;margin:13px 0}.authfield label{color:#aab4cc;font-size:10px;letter-spacing:1px}.authfield input{width:100%;padding:12px 13px;border-radius:9px;background:#090f1e;border:1px solid #303951;color:#f4f6ff;outline:none}.authfield input:focus{border-color:#9274ef;box-shadow:0 0 0 3px #8b5cf622}
+.authactions{display:flex;gap:8px;margin-top:18px}.authactions .btn{flex:1}.authlink{border:0;background:none;color:#79d9f1;font-size:11px;padding:10px 0}.authmsg{font-size:11px;line-height:1.5;color:#aab7d2;min-height:18px;margin-top:10px}.authmsg.error{color:#ff91a5}.authmsg.ok{color:#79e6b9}
+@media(max-width:700px){.authbox{padding:22px 18px;border-radius:16px}.authbox h2{font-size:25px}}
+
 </style></head>
 <body>
 <div class="app">
@@ -115,7 +124,7 @@ footer{margin-top:25px;color:#68738e;font-size:10px;display:flex;justify-content
   <div class="sidebottom"><div class="season"><small>ACTIVE SQUAD</small><strong>Eclipse Force Prime</strong><span>● Competitive Division</span></div></div>
 </aside>
 <main>
-<header class="top"><div><div class="eyebrow">TEAM OPERATIONS / 2026</div><h1 class="heading" id="pageTitle">Team Overview</h1><div class="sub" id="today"></div></div><div class="topright"><div class="live"><span class="dot"></span> SYSTEM ONLINE</div><div class="avatar">SP</div></div></header>
+<header class="top"><div><div class="eyebrow">TEAM OPERATIONS / 2026</div><h1 class="heading" id="pageTitle">Team Overview</h1><div class="sub" id="today"></div></div><div class="topright"><div class="live"><span class="dot"></span> SYSTEM ONLINE</div><div class="avatar" id="userAvatar">EFX</div></div></header>
 <section class="page active" id="overview">
   <div class="hero"><div class="heroin"><div><div class="herotag">UNDER THE ECLIPSE</div><h2>THE ARENA IS YOURS.</h2><p>Performance, preparation and precision. One team. One standard.</p></div><div class="heroStats"><div class="heroStat"><strong id="heroRecord">0–0</strong><small>MATCH RECORD</small></div><div class="heroStat"><strong id="heroWin">—</strong><small>WIN RATE</small></div><div class="heroStat"><strong>06</strong><small>ACTIVE PLAYERS</small></div></div></div></div>
   <div class="grid">
@@ -139,11 +148,28 @@ footer{margin-top:25px;color:#68738e;font-size:10px;display:flex;justify-content
 <section class="page" id="settings"><div class="toolbar"><div><h2 class="heading" style="font-size:26px">System Settings</h2><div class="sub">Application and account configuration</div></div></div><div class="card"><div class="cardtitle"><h3>BACKEND CONNECTION</h3></div><div class="notice" id="connectionState">Checking Supabase connection…</div><div class="sub">Project: mlnbdysnuyoxjnwntorp · Region: Singapore</div><div style="margin-top:16px"><button class="btn ghost" id="signOut">SIGN OUT</button></div></div></section>
 <footer><span>EFX PRIME COMMAND CENTRE · BUILD 0.1</span><span>POWERED BY SUPABASE + VERCEL</span></footer>
 </main></div>
+
+<div class="authgate show" id="authGate">
+ <div class="authbox">
+  <div class="authbrand"><div class="crest">EFX</div><div><strong>EFX PRIME</strong><small>COMMAND CENTRE ACCESS</small></div></div>
+  <h2 id="authHeading">WELCOME BACK.</h2>
+  <p id="authDescription">Sign in to access team operations, match records and player performance.</p>
+  <form id="authForm">
+   <div class="authfield"><label>EMAIL ADDRESS</label><input id="authEmail" type="email" autocomplete="email" required placeholder="name@example.com"></div>
+   <div class="authfield"><label>PASSWORD</label><input id="authPassword" type="password" autocomplete="current-password" minlength="8" required placeholder="At least 8 characters"></div>
+   <div class="authfield" id="displayNameField" style="display:none"><label>DISPLAY NAME</label><input id="authDisplayName" type="text" autocomplete="name" placeholder="Your name"></div>
+   <div class="authactions"><button class="btn" id="authSubmit" type="submit">SIGN IN</button></div>
+  </form>
+  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><button class="authlink" id="authMode" type="button">Create team account</button><button class="authlink" id="authReset" type="button">Forgot password?</button></div>
+  <div class="authmsg" id="authMessage" role="status" aria-live="polite"></div>
+  <div class="sub" style="margin-top:14px;font-size:10px">Access is protected by Supabase authentication and database row-level security.</div>
+ </div>
+</div>
 <div class="modalback" id="matchModal"><div class="modal"><h3>RECORD MATCH RESULT</h3><form id="matchForm"><div class="field"><label>OPPONENT TEAM</label><input name="opponent" required placeholder="Opponent team name"></div><div class="field"><label>MATCH TYPE</label><select name="type"><option value="scrim">Scrim</option><option value="tournament">Tournament</option><option value="league">League</option><option value="friendly">Friendly</option></select></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="field"><label>EFX SCORE</label><input name="efx" type="number" min="0" value="2" required></div><div class="field"><label>OPPONENT SCORE</label><input name="opp" type="number" min="0" value="0" required></div></div><div class="field"><label>DATE & TIME</label><input name="date" type="datetime-local" required></div><div class="modalActions"><button type="button" class="btn ghost" id="cancelMatch">CANCEL</button><button class="btn" type="submit">SAVE RESULT</button></div></form></div></div>
 <script>
 const SUPABASE_URL='https://mlnbdysnuyoxjnwntorp.supabase.co';
 const SUPABASE_KEY='sb_publishable_ldZVBs6MW8B2dPMuvuDoQg_XukBQo8H';
-const sb=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY);
+const sb=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const roster=[
  {name:'Spartan',lane:'EXP LANE',desc:'Captain / EXP Lane',initial:'S'},
  {name:'Guts',lane:'ROAM',desc:'Roam',initial:'G'},
@@ -172,9 +198,11 @@ function updateMatches(){
 async function loadData(){
  if(!sb){$('#connectionState').textContent='Supabase client could not initialise.';return}
  const {data:{session}}=await sb.auth.getSession();
- $('#connectionState').textContent=session?'Authenticated · Connected to Supabase':'Connected to Supabase · Sign in required to access team records.';
- $('#authNotice').textContent=session?'Signed in. Match and roster records load from the live database.':'Preview mode. Sign in to Supabase to load live records and save new results.';
- if(!session)return;
+ $('#authGate').classList.toggle('show',!session);
+ $('#connectionState').textContent=session?'Authenticated · Connected to Supabase':'Sign in required.';
+ $('#authNotice').textContent=session?'Signed in. Match and roster records load from the live database.':'Sign in to access team records.';
+ if(session){const email=session.user.email||'EFX';$('#userAvatar').textContent=email.slice(0,2).toUpperCase()}
+ if(!session){matches=[];updateMatches();return;}
  const [teams,players,fixtures]=await Promise.all([
   sb.from('efx_teams').select('*').eq('short_name','EFX PRIME').maybeSingle(),
   sb.from('efx_players').select('*').eq('is_active',true),
@@ -192,8 +220,50 @@ $('#matchForm').addEventListener('submit',async e=>{e.preventDefault();const f=n
  if(error){alert('Could not save match: '+error.message);return}$('#matchModal').classList.remove('show');e.target.reset();await loadData();go('matches');
 });
 $('#rosterRefresh').addEventListener('click',loadData);
-$('#signOut').addEventListener('click',async()=>{await sb.auth.signOut();location.reload()});
-if(sb){sb.auth.onAuthStateChange(()=>loadData())}
+
+let authMode='signin';
+function setAuthMode(mode){
+ authMode=mode;
+ $('#authHeading').textContent=mode==='signup'?'CREATE YOUR ACCOUNT.':mode==='reset'?'RESET PASSWORD.':'WELCOME BACK.';
+ $('#authDescription').textContent=mode==='signup'?'Create your team access account. Email verification may be required before your first sign-in.':mode==='reset'?'Enter your email address and we will send a password reset link.':'Sign in to access team operations, match records and player performance.';
+ $('#authPassword').closest('.authfield').style.display=mode==='reset'?'none':'grid';
+ $('#displayNameField').style.display=mode==='signup'?'grid':'none';
+ $('#authPassword').required=mode!=='reset';
+ $('#authSubmit').textContent=mode==='signup'?'CREATE ACCOUNT':mode==='reset'?'SEND RESET LINK':'SIGN IN';
+ $('#authMode').textContent=mode==='signin'?'Create team account':'Back to sign in';
+ $('#authReset').style.display=mode==='signin'?'inline-block':'none';
+ $('#authMessage').textContent='';$('#authMessage').className='authmsg';
+}
+$('#authMode').addEventListener('click',()=>setAuthMode(authMode==='signin'?'signup':'signin'));
+$('#authReset').addEventListener('click',()=>setAuthMode('reset'));
+$('#authForm').addEventListener('submit',async e=>{
+ e.preventDefault();const email=$('#authEmail').value.trim(),password=$('#authPassword').value,displayName=$('#authDisplayName').value.trim();
+ const msg=$('#authMessage');msg.textContent='Please wait…';msg.className='authmsg';
+ $('#authSubmit').disabled=true;
+ try{
+  if(authMode==='signup'){
+   const {data,error}=await sb.auth.signUp({email,password,options:{data:{display_name:displayName},emailRedirectTo:location.origin}});
+   if(error)throw error;
+   msg.textContent=data.session?'Account created. Loading your workspace…':'Account created. Check your email to confirm the address, then sign in.';
+   msg.className='authmsg ok';
+   if(data.session)await loadData();
+  }else if(authMode==='reset'){
+   const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin});
+   if(error)throw error;
+   msg.textContent='If this email is registered, a password reset link has been sent.';
+   msg.className='authmsg ok';
+  }else{
+   const {error}=await sb.auth.signInWithPassword({email,password});
+   if(error)throw error;
+   msg.textContent='Signed in. Loading team workspace…';msg.className='authmsg ok';
+   await loadData();
+  }
+ }catch(err){msg.textContent=err.message||'Authentication failed.';msg.className='authmsg error'}
+ finally{$('#authSubmit').disabled=false}
+});
+$('#signOut').addEventListener('click',async()=>{await sb.auth.signOut();setAuthMode('signin');location.reload()});
+if(sb){sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_IN'||event==='SIGNED_OUT'||event==='TOKEN_REFRESHED')loadData()})}
+
 if(window.lucide)lucide.createIcons();updateMatches();loadData();
 </script>
 </body></html>
