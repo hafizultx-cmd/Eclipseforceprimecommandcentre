@@ -179,9 +179,9 @@ const roster=[
  {name:'Toyeng',lane:'GOLD LANE',desc:'Gold Lane',initial:'T'},
  {name:'Juds',lane:'FLEX',desc:'Team Leader / Coach / Fill',initial:'J'}
 ];
-let matches=[],teamId=null;
+let matches=[],teamId=null,currentIsAdmin=false;
 const $=s=>document.querySelector(s);
-function escapeHtml(v){return String(v??'').replace(/[&<>\"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[ch]))}
+function escapeHtml(v){return String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('\\\"','&quot;').replaceAll("'",'&#39;')}
 function renderRoster(target){$(target).innerHTML=roster.map(p=>'<div class="player"><div class="playerTop"><div class="playerAvatar">'+p.initial+'</div><div><strong>'+p.name+'</strong><small>'+p.desc+'</small></div></div><span class="lane">'+p.lane+'</span></div>').join('')}
 renderRoster('#roster');renderRoster('#playersRoster');
 const now=new Date();$('#today').textContent=now.toLocaleDateString('en-MY',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
@@ -210,12 +210,13 @@ async function loadData(){
  $('#connectionState').textContent=session?'Authenticated · Connected to Supabase':'Sign in required.';
  $('#authNotice').textContent=session?'Signed in. Match and roster records load from the live database.':'Sign in to access team records.';
  if(!session){
+   currentIsAdmin=false;$('#addEvent').style.display='none';$('#addMatch').style.display='none';
    $('#authGate').classList.add('show');setAuthMode('signin');
    $('#authForm').style.display='block';$('#authMode').style.display='none';$('#authReset').style.display='none';$('#pendingSignOut').style.display='none';
    matches=[];updateMatches();return;
  }
  const email=session.user.email||'EFX';$('#userAvatar').textContent=email.slice(0,2).toUpperCase();
- const isAdmin=session.user.app_metadata?.role==='admin';
+ const isAdmin=session.user.app_metadata?.role==='admin';currentIsAdmin=isAdmin;$('#addEvent').style.display=isAdmin?'inline-flex':'none';$('#addMatch').style.display=isAdmin?'inline-flex':'none';
  const {data:profile}=await sb.from('efx_profiles').select('role,is_active,display_name').eq('id',session.user.id).maybeSingle();
  const allowed=isAdmin || profile?.is_active===true;
  if(!allowed){
