@@ -169,7 +169,7 @@ footer{margin-top:25px;color:#68738e;font-size:10px;display:flex;justify-content
 <script>
 const SUPABASE_URL='https://mlnbdysnuyoxjnwntorp.supabase.co';
 const SUPABASE_KEY='sb_publishable_ldZVBs6MW8B2dPMuvuDoQg_XukBQo8H';
-const sb=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+const sb=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'pkce'}});
 const roster=[
  {name:'Spartan',lane:'EXP LANE',desc:'Captain / EXP Lane',initial:'S'},
  {name:'Guts',lane:'ROAM',desc:'Roam',initial:'G'},
@@ -195,7 +195,11 @@ function updateMatches(){
  $('#matchTable').innerHTML=rows.length?rows.map(m=>'<tr><td><b>'+m.opponent_name+'</b></td><td>'+m.match_type+'</td><td>'+new Date(m.scheduled_at).toLocaleDateString()+'</td><td>'+m.efx_score+' : '+m.opponent_score+'</td><td><span class="pill '+(m.result==='win'?'win':m.result==='loss'?'loss':'scheduled')+'">'+m.result.toUpperCase()+'</span></td></tr>').join(''):'<tr><td colspan="5" style="color:#8e98b3">No match records available.</td></tr>';
  $('#recentMatches').innerHTML=rows.slice(0,3).map(m=>'<div class="match"><div class="versus"><div class="teammark">EFX</div><div><strong>EFX PRIME vs '+m.opponent_name+'</strong><small>'+new Date(m.scheduled_at).toLocaleDateString()+' · '+m.match_type+'</small></div></div><div class="score '+(m.result==='win'?'win':m.result==='loss'?'loss':'')+'">'+m.efx_score+' : '+m.opponent_score+'</div></div>').join('')||'<div class="notice">No match records yet. Add your first result in Match Centre.</div>';
 }
+let loadDataInFlight=false;
 async function loadData(){
+ if(loadDataInFlight)return;
+ loadDataInFlight=true;
+ try{
  if(!sb){$('#connectionState').textContent='Supabase client could not initialise.';return}
  const {data:{session}}=await sb.auth.getSession();
  $('#connectionState').textContent=session?'Authenticated · Connected to Supabase':'Sign in required.';
@@ -230,6 +234,8 @@ async function loadData(){
  if(players.data?.length){roster.splice(0,roster.length,...players.data.map(p=>({name:p.in_game_name,lane:p.lane.toUpperCase()+' LANE',desc:p.role_description||p.lane,initial:p.in_game_name[0]})));renderRoster('#roster');renderRoster('#playersRoster')}
  if(fixtures.data)matches=fixtures.data;
  updateMatches();
+ }catch(err){console.error('EFX workspace load failed:',err);$('#authGate').classList.add('show');$('#authForm').style.display='block';$('#authMessage').textContent='Signed in, but workspace loading failed: '+(err.message||'Please try again.');$('#authMessage').className='authmsg error';}
+ finally{loadDataInFlight=false;}
 }
 $('#addMatch').addEventListener('click',async()=>{const {data:{session}}=await sb.auth.getSession();if(!session){alert('Please sign in first. Authentication users must be provisioned in Supabase Auth.');go('settings');return}$('#matchModal').classList.add('show')});
 $('#cancelMatch').addEventListener('click',()=>$('#matchModal').classList.remove('show'));
@@ -271,8 +277,9 @@ $('#authForm').addEventListener('submit',async e=>{
    msg.textContent='If this email is registered, a password reset link has been sent.';
    msg.className='authmsg ok';
   }else{
-   const {error}=await sb.auth.signInWithPassword({email,password});
+   const {data,error}=await sb.auth.signInWithPassword({email,password});
    if(error)throw error;
+   if(!data.session)throw new Error('Supabase did not return a login session. Please open this website in Safari and try again.');
    msg.textContent='Signed in. Loading team workspace…';msg.className='authmsg ok';
    await loadData();
   }
@@ -281,7 +288,7 @@ $('#authForm').addEventListener('submit',async e=>{
 });
 $('#signOut').addEventListener('click',async()=>{await sb.auth.signOut();location.reload()});
 $('#pendingSignOut').addEventListener('click',async()=>{await sb.auth.signOut();location.reload()});
-if(sb){sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_IN'||event==='SIGNED_OUT'||event==='TOKEN_REFRESHED')queueMicrotask(()=>loadData())})}
+if(sb){sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_IN'||event==='SIGNED_OUT')queueMicrotask(()=>loadData())})}
 
 if(window.lucide)lucide.createIcons();updateMatches();loadData();
 </script>
