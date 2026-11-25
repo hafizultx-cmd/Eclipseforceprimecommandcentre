@@ -161,7 +161,7 @@ footer{margin-top:25px;color:#68738e;font-size:10px;display:flex;justify-content
    <div class="authactions"><button class="btn" id="authSubmit" type="submit">SIGN IN</button></div>
   </form>
   <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><button class="authlink" id="authMode" type="button">Create team account</button><button class="authlink" id="authReset" type="button">Forgot password?</button></div>
-  <div class="authmsg" id="authMessage" role="status" aria-live="polite"></div>
+  <div class="authmsg" id="authMessage" role="status" aria-live="polite"></div><button class="authlink" id="pendingSignOut" type="button" style="display:none">Sign out of this account</button>
   <div class="sub" style="margin-top:14px;font-size:10px">Access is protected by Supabase authentication and database row-level security.</div>
  </div>
 </div>
@@ -198,11 +198,29 @@ function updateMatches(){
 async function loadData(){
  if(!sb){$('#connectionState').textContent='Supabase client could not initialise.';return}
  const {data:{session}}=await sb.auth.getSession();
- $('#authGate').classList.toggle('show',!session);
  $('#connectionState').textContent=session?'Authenticated · Connected to Supabase':'Sign in required.';
  $('#authNotice').textContent=session?'Signed in. Match and roster records load from the live database.':'Sign in to access team records.';
- if(session){const email=session.user.email||'EFX';$('#userAvatar').textContent=email.slice(0,2).toUpperCase()}
- if(!session){matches=[];updateMatches();return;}
+ if(!session){
+   $('#authGate').classList.add('show');setAuthMode('signin');
+   $('#authForm').style.display='block';$('#authMode').style.display='inline-block';$('#authReset').style.display='inline-block';$('#pendingSignOut').style.display='none';
+   matches=[];updateMatches();return;
+ }
+ const email=session.user.email||'EFX';$('#userAvatar').textContent=email.slice(0,2).toUpperCase();
+ const isAdmin=session.user.app_metadata?.role==='admin';
+ const {data:profile}=await sb.from('efx_profiles').select('role,is_active,display_name').eq('id',session.user.id).maybeSingle();
+ const allowed=isAdmin || profile?.is_active===true;
+ if(!allowed){
+   $('#authGate').classList.add('show');
+   $('#authHeading').textContent='ACCOUNT PENDING APPROVAL.';
+   $('#authDescription').textContent='Your account has been created, but a team administrator must approve access before you can enter the Command Centre.';
+   $('#authForm').style.display='none';$('#authMode').style.display='none';$('#authReset').style.display='none';$('#pendingSignOut').style.display='inline-block';
+   $('#authMessage').textContent='Access is currently restricted. Contact your EFX PRIME administrator.';
+   $('#authMessage').className='authmsg';
+   matches=[];updateMatches();return;
+ }
+ $('#authGate').classList.remove('show');
+ $('#authForm').style.display='block';$('#authMode').style.display='inline-block';$('#authReset').style.display='inline-block';$('#pendingSignOut').style.display='none';
+ $('#userAvatar').title=isAdmin?'Administrator':(profile?.role||'Member');
  const [teams,players,fixtures]=await Promise.all([
   sb.from('efx_teams').select('*').eq('short_name','EFX PRIME').maybeSingle(),
   sb.from('efx_players').select('*').eq('is_active',true),
@@ -261,8 +279,9 @@ $('#authForm').addEventListener('submit',async e=>{
  }catch(err){msg.textContent=err.message||'Authentication failed.';msg.className='authmsg error'}
  finally{$('#authSubmit').disabled=false}
 });
-$('#signOut').addEventListener('click',async()=>{await sb.auth.signOut();setAuthMode('signin');location.reload()});
-if(sb){sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_IN'||event==='SIGNED_OUT'||event==='TOKEN_REFRESHED')loadData()})}
+$('#signOut').addEventListener('click',async()=>{await sb.auth.signOut();location.reload()});
+$('#pendingSignOut').addEventListener('click',async()=>{await sb.auth.signOut();location.reload()});
+if(sb){sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_IN'||event==='SIGNED_OUT'||event==='TOKEN_REFRESHED')queueMicrotask(()=>loadData())})}
 
 if(window.lucide)lucide.createIcons();updateMatches();loadData();
 </script>
