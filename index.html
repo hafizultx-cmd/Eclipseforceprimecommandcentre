@@ -181,7 +181,7 @@ const roster=[
 ];
 let matches=[],teamId=null,currentIsAdmin=false;
 const $=s=>document.querySelector(s);
-function escapeHtml(v){return String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('\\\"','&quot;').replaceAll("'",'&#39;')}
+function escapeHtml(v){return String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#39;")}
 function renderRoster(target){$(target).innerHTML=roster.map(p=>'<div class="player"><div class="playerTop"><div class="playerAvatar">'+p.initial+'</div><div><strong>'+p.name+'</strong><small>'+p.desc+'</small></div></div><span class="lane">'+p.lane+'</span></div>').join('')}
 renderRoster('#roster');renderRoster('#playersRoster');
 const now=new Date();$('#today').textContent=now.toLocaleDateString('en-MY',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
