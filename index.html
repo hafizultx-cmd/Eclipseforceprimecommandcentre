@@ -160,7 +160,7 @@ footer{margin-top:25px;color:#68738e;font-size:10px;display:flex;justify-content
    <div class="authfield" id="displayNameField" style="display:none"><label>DISPLAY NAME</label><input id="authDisplayName" type="text" autocomplete="name" placeholder="Your name"></div>
    <div class="authactions"><button class="btn" id="authSubmit" type="submit">SIGN IN</button></div>
   </form>
-  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><button class="authlink" id="authMode" type="button">Create team account</button><button class="authlink" id="authReset" type="button">Forgot password?</button></div>
+  <div style="display:flex;justify-content:flex-end"><span class="sub" style="font-size:10px">Team accounts are issued by the system administrator.</span><button class="authlink" id="authMode" type="button" style="display:none">Create team account</button><button class="authlink" id="authReset" type="button" style="display:none">Forgot password?</button></div>
   <div class="authmsg" id="authMessage" role="status" aria-live="polite"></div><button class="authlink" id="pendingSignOut" type="button" style="display:none">Sign out of this account</button>
   <div class="sub" style="margin-top:14px;font-size:10px">Access is protected by Supabase authentication and database row-level security.</div>
  </div>
@@ -206,7 +206,7 @@ async function loadData(){
  $('#authNotice').textContent=session?'Signed in. Match and roster records load from the live database.':'Sign in to access team records.';
  if(!session){
    $('#authGate').classList.add('show');setAuthMode('signin');
-   $('#authForm').style.display='block';$('#authMode').style.display='inline-block';$('#authReset').style.display='inline-block';$('#pendingSignOut').style.display='none';
+   $('#authForm').style.display='block';$('#authMode').style.display='none';$('#authReset').style.display='none';$('#pendingSignOut').style.display='none';
    matches=[];updateMatches();return;
  }
  const email=session.user.email||'EFX';$('#userAvatar').textContent=email.slice(0,2).toUpperCase();
@@ -256,8 +256,8 @@ function setAuthMode(mode){
  $('#displayNameField').style.display=mode==='signup'?'grid':'none';
  $('#authPassword').required=mode!=='reset';
  $('#authSubmit').textContent=mode==='signup'?'CREATE ACCOUNT':mode==='reset'?'SEND RESET LINK':'SIGN IN';
- $('#authMode').textContent=mode==='signin'?'Create team account':'Back to sign in';
- $('#authReset').style.display=mode==='signin'?'inline-block':'none';
+ $('#authMode').style.display='none';
+ $('#authReset').style.display='none';
  $('#authMessage').textContent='';$('#authMessage').className='authmsg';
 }
 $('#authMode').addEventListener('click',()=>setAuthMode(authMode==='signin'?'signup':'signin'));
